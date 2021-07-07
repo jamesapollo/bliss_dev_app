@@ -1,0 +1,10 @@
+{
+    "name": "apollo/bliss-dev-app",
+    "description": "\"Bliss Health Care System\"",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {}
+}

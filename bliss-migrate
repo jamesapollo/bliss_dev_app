@@ -1,0 +1,94 @@
+#!/usr/bin/env php
+<?php
+
+echo "Starting migrations..." . PHP_EOL . PHP_EOL;
+
+echo "Connecting to database..." . PHP_EOL;
+
+$config = require('./config.php');
+
+$db_host = $config['db_host'];
+$db_username = $config['db_username'];
+$db_pass = $config['db_password'];
+$db_name = $config['db_name'];
+
+$conn = mysqli_connect($db_host, $db_username, $db_pass, $db_name);
+
+if (!$conn) {
+    echo "\e[91mDatabase connection failed\033[0m" . PHP_EOL . PHP_EOL;
+} else {
+    echo "\e[32mDatabase connected successfully!\033[0m" . PHP_EOL . PHP_EOL;
+}
+
+$tbl_gender_sql = "CREATE TABLE IF NOT EXISTS tbl_gender 
+( 
+    pk_id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    gender VARCHAR(10) NOT NULL,
+    PRIMARY KEY (pk_id)
+);";
+
+$tbl_service_sql = "CREATE TABLE IF NOT EXISTS tbl_service 
+( 
+    pk_id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    service_type VARCHAR(255) NOT NULL,
+    PRIMARY KEY(pk_id)
+);";
+
+$tbl_patient_sql = "CREATE TABLE IF NOT EXISTS tbl_patient
+( 
+    pk_id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    patient_name VARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    general_comment VARCHAR(255) NOT NULL,
+    fk_gender INT(11) UNSIGNED NOT NULL,
+    fk_service INT(11) UNSIGNED NOT NULL,
+    FOREIGN KEY(fk_gender) REFERENCES tbl_gender(pk_id),
+    FOREIGN KEY(fk_service) REFERENCES tbl_service(pk_id)
+);";
+
+
+// CREATE THE tbl_gender table
+echo "Creating tbl_gender table..." . PHP_EOL;
+if ($conn->query($tbl_gender_sql) === TRUE) {
+    echo "\e[32mtbl_gender table created successfully!\033[0m" . PHP_EOL . PHP_EOL;    
+} else {
+    echo "\e[31mFailed to create gender table: " . $conn->error . "\033[0m" . PHP_EOL . PHP_EOL;   
+}
+
+echo "Creating tbl_service table..." . PHP_EOL;
+if ($conn->query($tbl_service_sql)) {
+    echo "\e[32mtbl_service table created successfully!\033[0m" . PHP_EOL . PHP_EOL;    
+} else {
+    echo "\e[31mFailed to create service table: " . $conn->error . "\033[0m" . PHP_EOL . PHP_EOL;   
+}
+
+echo "Creating tbl_patient table..." . PHP_EOL;
+if ($conn->query($tbl_patient_sql)) {
+    echo "\e[32mtbl_patient table created successfully!\033[0m" . PHP_EOL . PHP_EOL;    
+} else {
+    echo "\e[31mFailed to create patient table: " . $conn->error . "\033[0m" . PHP_EOL . PHP_EOL;   
+}
+
+echo "\e[36mSeeding data...\033[0m" . PHP_EOL . PHP_EOL;
+
+$gender_insert_sql = "INSERT INTO tbl_gender(gender) VALUES 
+    ('Male'), ('Female');";
+
+echo "\e[39mSeeding gender data...\033[0m" . PHP_EOL;
+if ($conn->query($gender_insert_sql)) {
+    echo "\e[32mGender table seeded successfully!\033[0m" . PHP_EOL . PHP_EOL;  
+} else {
+    echo "\e[31mFailed to seed gender data: " . $conn->error . "\033[0m" . PHP_EOL . PHP_EOL;   
+}
+
+$service_insert_sql = "INSERT INTO tbl_service(service_type) VALUES 
+    ('In Patient'), ('Out Patient');";
+
+echo "\e[39mSeeding service data...\033[0m" . PHP_EOL;
+if ($conn->query($service_insert_sql)) {
+    echo "\e[32mService table seeded successfully!\033[0m" . PHP_EOL . PHP_EOL;  
+} else {
+    echo "\e[31mFailed to seed service data: " . $conn->error . "\033[0m" . PHP_EOL . PHP_EOL;   
+}
+
+echo "\e[32mDONE!" . PHP_EOL . PHP_EOL;  
